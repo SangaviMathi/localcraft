@@ -1,0 +1,443 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--brand:#1A6B4A;--brand-light:#E8F5EE;--brand-mid:#2D9B6A;--accent:#FF6B35;--radius:12px}
+  body{font-family:'DM Sans',sans-serif;background:#f0f0f0;min-height:100vh}
+  #app{max-width:700px;margin:0 auto;padding:0 0 2rem}
+  .screen{display:none}.screen.active{display:block}
+
+  /* ── AUTH SCREEN ── */
+  #auth-screen{min-height:480px;display:none;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1.5rem;text-align:center;gap:1.5rem}
+  #auth-screen.active{display:flex}
+  .brand-logo{width:64px;height:64px;background:var(--brand);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto}
+  .brand-logo svg{width:32px;height:32px;fill:white}
+  .brand-title{font-family:'Sora',sans-serif;font-size:24px;font-weight:600;color:#1a1a1a}
+  .brand-sub{font-size:14px;color:#6b7280;line-height:1.6;max-width:280px}
+  .google-btn{display:flex;align-items:center;gap:10px;padding:12px 24px;background:#ffffff;border:0.5px solid #e5e7eb;border-radius:var(--radius);cursor:pointer;font-size:14px;font-weight:500;color:#1a1a1a;width:100%;max-width:280px;justify-content:center;transition:background .15s}
+  .google-btn:hover{background:#f5f5f5}
+  .google-icon{width:18px;height:18px;flex-shrink:0}
+
+  /* ── TOP BAR ── */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 1rem 0.5rem;gap:8px}
+  .topbar-left{display:flex;align-items:center;gap:8px}
+  .logo-sm{width:32px;height:32px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center}
+  .logo-sm svg{width:16px;height:16px;fill:white}
+  .app-name{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;color:#1a1a1a}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--brand-light);border:0.5px solid #f3f4f6;object-fit:cover;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--brand);flex-shrink:0}
+
+  /* ── LOCATION BAR ── */
+  .location-bar{margin:0 1rem 0.75rem;padding:10px 14px;background:#ffffff;border:0.5px solid #f3f4f6;border-radius:var(--radius);display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .15s}
+  .location-bar:hover{border-color:#9ca3af}
+  .loc-icon{width:16px;height:16px;flex-shrink:0;color:var(--accent)}
+  .loc-text{font-size:13px;color:#6b7280;flex:1}
+  .loc-name{font-weight:500;color:#1a1a1a}
+  .loc-change{font-size:12px;color:var(--brand);font-weight:500}
+
+  /* ── SEARCH ── */
+  .search-wrap{margin:0 1rem 1rem;position:relative}
+  .search-wrap input{width:100%;padding:10px 14px 10px 38px;background:#ffffff;border:0.5px solid #f3f4f6;border-radius:var(--radius);font-size:14px;color:#1a1a1a;outline:none;font-family:'DM Sans',sans-serif}
+  .search-wrap input:focus{border-color:var(--brand)}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:#6b7280}
+
+  /* ── CATEGORIES ── */
+  .section-label{padding:0 1rem 0.5rem;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.06em}
+  .categories{display:flex;gap:8px;padding:0 1rem 1rem;overflow-x:auto;scrollbar-width:none}
+  .categories::-webkit-scrollbar{display:none}
+  .cat-chip{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;background:#ffffff;border:0.5px solid #f3f4f6;border-radius:var(--radius);cursor:pointer;transition:all .15s;min-width:72px}
+  .cat-chip:hover,.cat-chip.active{background:var(--brand-light);border-color:var(--brand)}
+  .cat-chip.active .cat-icon,.cat-chip.active .cat-label{color:var(--brand)}
+  .cat-icon{font-size:20px;line-height:1}
+  .cat-label{font-size:11px;font-weight:500;color:#6b7280;white-space:nowrap}
+  .cat-chip.active .cat-label{color:var(--brand)}
+
+  /* ── ACTIVE FILTER PILLS ── */
+  .filter-row{display:flex;gap:6px;padding:0 1rem 0.75rem;flex-wrap:wrap;min-height:0}
+  .filter-pill{display:flex;align-items:center;gap:4px;padding:4px 10px;background:var(--brand);border-radius:20px;font-size:12px;color:white;cursor:pointer}
+  .filter-pill .remove{font-size:14px;line-height:1;opacity:.8}
+  .nearby-toggle{display:flex;align-items:center;gap:6px;padding:4px 10px;background:#ffffff;border:0.5px solid #e5e7eb;border-radius:20px;font-size:12px;color:#6b7280;cursor:pointer;margin-left:auto}
+  .nearby-toggle.on{background:var(--brand-light);color:var(--brand);border-color:var(--brand)}
+  .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+  /* ── WORKER CARDS ── */
+  .workers-header{display:flex;align-items:center;justify-content:space-between;padding:0 1rem 0.5rem}
+  .workers-count{font-size:13px;color:#6b7280}
+  .sort-select{font-size:12px;color:var(--brand);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+  .workers-list{display:flex;flex-direction:column;gap:10px;padding:0 1rem}
+  .worker-card{background:#ffffff;border:0.5px solid #f3f4f6;border-radius:var(--radius);padding:14px;cursor:pointer;transition:border-color .15s}
+  .worker-card:hover{border-color:#e5e7eb}
+  .wc-top{display:flex;gap:12px;align-items:flex-start}
+  .wc-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:16px;font-weight:600;flex-shrink:0;color:white}
+  .wc-info{flex:1;min-width:0}
+  .wc-name{font-size:15px;font-weight:500;color:#1a1a1a;font-family:'Sora',sans-serif}
+  .wc-trade{font-size:12px;color:#6b7280;margin-top:1px}
+  .wc-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;margin-top:4px}
+  .badge-available{background:#E8F5EE;color:#1A6B4A}
+  .badge-busy{background:#FFF3E8;color:#C05010}
+  .wc-meta{display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:0.5px solid #f3f4f6}
+  .wc-meta-item{display:flex;align-items:center;gap:4px;font-size:12px;color:#6b7280}
+  .wc-meta-item svg{width:12px;height:12px;flex-shrink:0}
+  .wc-rating{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:500;color:#FF9500}
+  .wc-dist{font-size:12px;color:#6b7280}
+  .wc-price{font-size:13px;font-weight:500;color:#1a1a1a;margin-left:auto}
+  .wc-actions{display:flex;gap:8px;margin-top:10px}
+  .btn-call{flex:1;padding:8px;background:var(--brand);border:none;border-radius:8px;color:white;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+  .btn-call:hover{opacity:.88}
+  .btn-msg{flex:1;padding:8px;background:#f5f5f5;border:0.5px solid #e5e7eb;border-radius:8px;color:#1a1a1a;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+  /* ── LOCATION MODAL ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-end;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal-sheet{background:#ffffff;border-radius:16px 16px 0 0;padding:1.5rem;width:100%;max-width:700px}
+  .modal-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:600;margin-bottom:1rem;color:#1a1a1a}
+  .loc-option{display:flex;align-items:center;gap:10px;padding:12px;border-radius:var(--radius);cursor:pointer;margin-bottom:6px;border:0.5px solid #f3f4f6}
+  .loc-option:hover{background:#f5f5f5}
+  .loc-option.selected{border-color:var(--brand);background:var(--brand-light)}
+  .loc-option-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .loc-option-label{font-size:14px;font-weight:500;color:#1a1a1a}
+  .loc-option-sub{font-size:12px;color:#6b7280}
+  .modal-close{width:100%;padding:10px;background:none;border:0.5px solid #e5e7eb;border-radius:var(--radius);font-size:14px;color:#6b7280;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif}
+
+  /* ── EMPTY STATE ── */
+  .empty{text-align:center;padding:2.5rem 1rem;color:#6b7280;font-size:14px}
+  .empty-icon{font-size:32px;margin-bottom:8px}
+
+  /* ── DETAIL SCREEN ── */
+  #detail-screen{display:none;padding:0 1rem 2rem}
+  #detail-screen.active{display:block}
+  .detail-back{display:flex;align-items:center;gap:6px;padding:1rem 0 0.5rem;cursor:pointer;font-size:14px;color:var(--brand);font-weight:500}
+  .detail-hero{background:#ffffff;border:0.5px solid #f3f4f6;border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+  .dh-top{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+  .dh-avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:22px;font-weight:600;color:white;flex-shrink:0}
+  .dh-name{font-family:'Sora',sans-serif;font-size:18px;font-weight:600;color:#1a1a1a}
+  .dh-trade{font-size:13px;color:#6b7280}
+  .detail-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+  .stat-cell{background:#f5f5f5;border-radius:8px;padding:10px;text-align:center}
+  .stat-val{font-size:18px;font-weight:600;color:#1a1a1a;font-family:'Sora',sans-serif}
+  .stat-lbl{font-size:11px;color:#6b7280;margin-top:2px}
+  .detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tag{padding:4px 10px;background:var(--brand-light);border-radius:20px;font-size:12px;color:var(--brand);font-weight:500}
+  .detail-section{background:#ffffff;border:0.5px solid #f3f4f6;border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem}
+  .ds-title{font-size:13px;font-weight:500;color:#6b7280;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+  .review-item{padding:10px 0;border-bottom:0.5px solid #f3f4f6}
+  .review-item:last-child{border-bottom:none;padding-bottom:0}
+  .rv-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .rv-name{font-size:13px;font-weight:500;color:#1a1a1a}
+  .rv-text{font-size:13px;color:#6b7280;line-height:1.5}
+  .detail-ctas{display:flex;gap:8px;position:sticky;bottom:0;background:#f0f0f0;padding:1rem 0 0}
+  .cta-call{flex:1;padding:12px;background:var(--brand);border:none;border-radius:var(--radius);color:white;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .cta-whatsapp{flex:1;padding:12px;background:#25D366;border:none;border-radius:var(--radius);color:white;font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .stars{color:#FF9500;font-size:13px;letter-spacing:1px}
+</style>
+
+<div id="app">
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="screen active">
+  <div class="brand-logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/><path d="M3 12c0 4.97 4.03 9 9 9s9-4.03 9-9-4.03-9-9-9-9 4.03-9 9z" fill="none"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+  </div>
+  <div>
+    <div class="brand-title">LocalCraft</div>
+    <div class="brand-sub">Find trusted local service professionals near you — fast.</div>
+  </div>
+  <button class="google-btn" onclick="signInGoogle()">
+    <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Continue with Google
+  </button>
+  <p style="font-size:11px;color:#6b7280">By continuing, you agree to our Terms of Service</p>
+</div>
+
+<!-- MAIN SCREEN -->
+<div id="main-screen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-sm"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+      <span class="app-name">LocalCraft</span>
+    </div>
+    <div class="avatar" id="user-avatar">RK</div>
+  </div>
+
+  <div class="location-bar" onclick="openLocModal()">
+    <svg class="loc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <div class="loc-text">Near <span class="loc-name" id="loc-display">Coimbatore, Tamil Nadu</span></div>
+    <div class="loc-change">Change</div>
+  </div>
+
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" placeholder="Search by name, skill, or area..." oninput="handleSearch(this.value)" id="search-input"/>
+  </div>
+
+  <div class="section-label">Select service</div>
+  <div class="categories" id="categories"></div>
+
+  <div class="filter-row" id="filter-row"></div>
+
+  <div class="workers-header">
+    <div class="workers-count" id="workers-count">18 professionals found</div>
+    <select class="sort-select" onchange="handleSort(this.value)">
+      <option value="dist">Nearest first</option>
+      <option value="rating">Top rated</option>
+      <option value="price">Lowest price</option>
+    </select>
+  </div>
+  <div class="workers-list" id="workers-list"></div>
+</div>
+
+<!-- DETAIL SCREEN -->
+<div id="detail-screen" class="screen">
+  <div class="detail-back" onclick="showMain()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to results
+  </div>
+  <div id="detail-content"></div>
+</div>
+
+</div>
+
+<!-- LOCATION MODAL -->
+<div class="modal-overlay" id="loc-modal">
+  <div class="modal-sheet">
+    <div class="modal-title">Choose your location</div>
+    <div class="loc-option selected" onclick="setLocation('Coimbatore, Tamil Nadu','RS Puram, Coimbatore')">
+      <div class="loc-option-icon" style="background:#E8F5EE"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1A6B4A" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <div><div class="loc-option-label">Use current location</div><div class="loc-option-sub">RS Puram, Coimbatore — detected</div></div>
+    </div>
+    <div class="loc-option" onclick="setLocation('Coimbatore South','Coimbatore South Taluk')">
+      <div class="loc-option-icon" style="background:#F1EFE8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F5E5A" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div><div class="loc-option-label">Coimbatore South</div><div class="loc-option-sub">Saibaba Colony, Peelamedu, Singanallur</div></div>
+    </div>
+    <div class="loc-option" onclick="setLocation('Coimbatore North','Coimbatore North Taluk')">
+      <div class="loc-option-icon" style="background:#F1EFE8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F5E5A" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div><div class="loc-option-label">Coimbatore North</div><div class="loc-option-sub">Gandhipuram, Vadavalli, Ukkadam</div></div>
+    </div>
+    <div class="loc-option" onclick="setLocation('Tiruppur District','Tiruppur & surroundings')">
+      <div class="loc-option-icon" style="background:#F1EFE8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F5E5A" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <div><div class="loc-option-label">Tiruppur District</div><div class="loc-option-sub">Nearby district — 55 km away</div></div>
+    </div>
+    <button class="modal-close" onclick="closeLocModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = [
+  {id:'all',label:'All',icon:'🔍',color:'#888780'},
+  {id:'mason',label:'Mason',icon:'🧱',color:'#D85A30'},
+  {id:'electrician',label:'Electrician',icon:'⚡',color:'#BA7517'},
+  {id:'plumber',label:'Plumber',icon:'🔧',color:'#185FA5'},
+  {id:'ac',label:'AC Mechanic',icon:'❄️',color:'#0F6E56'},
+  {id:'carpenter',label:'Carpenter',icon:'🪚',color:'#639922'},
+  {id:'painter',label:'Painter',icon:'🖌️',color:'#993556'},
+  {id:'welder',label:'Welder',icon:'🔥',color:'#A32D2D'},
+  {id:'tiler',label:'Tiler',icon:'⬛',color:'#5F5E5A'},
+];
+
+const WORKERS = [
+  {id:1,name:'Rajan Kumar',trade:'Mason',area:'RS Puram',dist:'1.2 km',rating:4.8,jobs:120,price:'₹600/day',available:true,phone:'98765 43210',tags:['Brick work','Plastering','Concrete'],bio:'15 years experience in residential construction and renovations.',color:'#D85A30',reviews:[{name:'Arun S.',stars:5,text:'Excellent work on my boundary wall. Very neat and fast.'},{name:'Priya M.',stars:5,text:'Very professional, completed the job ahead of schedule.'}],cat:'mason'},
+  {id:2,name:'Selvam Murugan',trade:'Electrician',area:'Gandhipuram',dist:'2.4 km',rating:4.7,jobs:210,price:'₹500/visit',available:true,phone:'94432 11987',tags:['Wiring','Panel','Inverter'],bio:'Licensed electrician with expertise in residential and commercial wiring.',color:'#BA7517',reviews:[{name:'Deepa K.',stars:5,text:'Fixed my electrical issue in under an hour. Very knowledgeable.'},{name:'Mani R.',stars:4,text:'Good work, fair pricing.'}],cat:'electrician'},
+  {id:3,name:'Anbu Raj',trade:'Plumber',area:'Peelamedu',dist:'3.1 km',rating:4.6,jobs:180,price:'₹450/visit',available:true,phone:'95551 78234',tags:['Pipe fitting','Leakage','Bathroom'],bio:'Specialized in pipe installation and water leakage repairs.',color:'#185FA5',reviews:[{name:'Vijay N.',stars:5,text:'Solved my kitchen sink leakage quickly.'},{name:'Kavitha P.',stars:4,text:'Good service at reasonable cost.'}],cat:'plumber'},
+  {id:4,name:'Karthik Srinivasan',trade:'AC Mechanic',area:'Saibaba Colony',dist:'1.8 km',rating:4.9,jobs:95,price:'₹700/service',available:true,phone:'97890 23456',tags:['AC Service','Gas Filling','Installation'],bio:'Certified AC technician for all major brands — Daikin, Voltas, LG.',color:'#0F6E56',reviews:[{name:'Suresh B.',stars:5,text:'Best AC service I have had. Very thorough.'},{name:'Lakshmi A.',stars:5,text:'Prompt, clean work. Highly recommend.'}],cat:'ac'},
+  {id:5,name:'Murugan Pillai',trade:'Carpenter',area:'Vadavalli',dist:'4.5 km',rating:4.5,jobs:76,price:'₹650/day',available:false,phone:'96643 90123',tags:['Furniture','Doors','Modular'],bio:'Custom furniture and woodwork specialist with 12 years experience.',color:'#639922',reviews:[{name:'Rohini T.',stars:5,text:'Made beautiful modular kitchen for us.'},{name:'Bala K.',stars:4,text:'Good craftsmanship, takes time but worth it.'}],cat:'carpenter'},
+  {id:6,name:'Senthil Nathan',trade:'Painter',area:'Singanallur',dist:'5.2 km',rating:4.7,jobs:150,price:'₹550/day',available:true,phone:'90000 34567',tags:['Interior','Exterior','Texture'],bio:'Creative painter specializing in texture and decorative finishes.',color:'#993556',reviews:[{name:'Nirmala R.',stars:5,text:'Transformed our home with beautiful texture paint.'},{name:'Gopi S.',stars:4,text:'Clean work, good finishing.'}],cat:'painter'},
+  {id:7,name:'Balaji Krishnan',trade:'Mason',area:'Ukkadam',dist:'3.8 km',rating:4.4,jobs:88,price:'₹580/day',available:true,phone:'98451 23780',tags:['Flooring','Tiles','Brick'],bio:'Expert in flooring and tile work for homes and commercial spaces.',color:'#D85A30',reviews:[{name:'Ramesh C.',stars:4,text:'Good tiling job in my bathroom.'},{name:'Sunita P.',stars:5,text:'Very tidy and professional.'}],cat:'mason'},
+  {id:8,name:'Durai Pandian',trade:'Electrician',area:'Coimbatore',dist:'2.9 km',rating:4.6,jobs:165,price:'₹480/visit',available:false,phone:'94231 56789',tags:['Solar','CCTV','Automation'],bio:'Specializing in solar panel installation and home automation systems.',color:'#BA7517',reviews:[{name:'Ashwin M.',stars:5,text:'Installed solar system perfectly.'},{name:'Prithvi K.',stars:4,text:'Knowledgeable about automation systems.'}],cat:'electrician'},
+  {id:9,name:'Venkat Suresh',trade:'Plumber',area:'RS Puram',dist:'1.5 km',rating:4.8,jobs:200,price:'₹500/visit',available:true,phone:'97120 45678',tags:['Bore well','Overhead tank','Motor'],bio:'Expert in borewell connections, motor fitting, and overhead tank plumbing.',color:'#185FA5',reviews:[{name:'Arjun D.',stars:5,text:'Great work on our borewell connection.'},{name:'Meena S.',stars:5,text:'Very efficient and honest person.'}],cat:'plumber'},
+  {id:10,name:'Dinesh Babu',trade:'Welder',area:'Ganapathy',dist:'6.1 km',rating:4.5,jobs:60,price:'₹700/day',available:true,phone:'99432 87654',tags:['Gate','Grill','Fabrication'],bio:'Metal fabrication specialist — gates, grills, railings and furniture.',color:'#A32D2D',reviews:[{name:'Siva R.',stars:5,text:'Made excellent safety grills for all windows.'},{name:'Indira M.',stars:4,text:'Good quality metal work.'}],cat:'welder'},
+  {id:11,name:'Prabhu Selvan',trade:'Tiler',area:'Peelamedu',dist:'3.4 km',rating:4.6,jobs:110,price:'₹600/day',available:true,phone:'95671 23456',tags:['Floor tiles','Wall tiles','Waterproofing'],bio:'Professional tiler with expertise in designer and vitrified tiles.',color:'#5F5E5A',reviews:[{name:'Chandru L.',stars:5,text:'Beautiful tile work in our bathroom.'},{name:'Anu K.',stars:4,text:'Fast and clean installation.'}],cat:'tiler'},
+  {id:12,name:'Kannan Raj',trade:'AC Mechanic',area:'Coimbatore North',dist:'5.0 km',rating:4.3,jobs:55,price:'₹650/service',available:true,phone:'98901 23456',tags:['AC Repair','Window AC','Cassette AC'],bio:'10 years experience servicing window, split, and cassette ACs.',color:'#0F6E56',reviews:[{name:'Vimal T.',stars:4,text:'Fixed my AC quickly.'},{name:'Pooja S.',stars:4,text:'Good service at fair price.'}],cat:'ac'},
+];
+
+let activeFilter = 'all';
+let nearbyOnly = true;
+let sortBy = 'dist';
+let searchQ = '';
+let currentWorker = null;
+let user = null;
+
+function signInGoogle() {
+  user = {name:'Rajan Kumar', email:'rajan@gmail.com', initials:'RK'};
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('main-screen').classList.add('active');
+  document.getElementById('user-avatar').textContent = user.initials;
+  renderCategories();
+  renderWorkers();
+}
+
+function renderCategories() {
+  const wrap = document.getElementById('categories');
+  wrap.innerHTML = CATEGORIES.map(c => `
+    <div class="cat-chip ${c.id===activeFilter?'active':''}" onclick="setFilter('${c.id}')">
+      <span class="cat-icon">${c.icon}</span>
+      <span class="cat-label">${c.label}</span>
+    </div>`).join('');
+}
+
+function setFilter(id) {
+  activeFilter = id;
+  renderCategories();
+  renderFilterRow();
+  renderWorkers();
+}
+
+function renderFilterRow() {
+  const row = document.getElementById('filter-row');
+  let html = '';
+  if(activeFilter !== 'all') {
+    const cat = CATEGORIES.find(c=>c.id===activeFilter);
+    html += `<div class="filter-pill" onclick="setFilter('all')">${cat.icon} ${cat.label} <span class="remove">×</span></div>`;
+  }
+  html += `<div class="nearby-toggle ${nearbyOnly?'on':''}" onclick="toggleNearby()"><span class="dot"></span>${nearbyOnly?'Nearby (5 km)':'All district'}</div>`;
+  row.innerHTML = html;
+}
+
+function toggleNearby() {
+  nearbyOnly = !nearbyOnly;
+  renderFilterRow();
+  renderWorkers();
+}
+
+function handleSearch(v) {
+  searchQ = v.toLowerCase();
+  renderWorkers();
+}
+
+function handleSort(v) {
+  sortBy = v;
+  renderWorkers();
+}
+
+function getFiltered() {
+  let list = WORKERS.filter(w => {
+    if(activeFilter !== 'all' && w.cat !== activeFilter) return false;
+    if(nearbyOnly && parseFloat(w.dist) > 5) return false;
+    if(searchQ && !w.name.toLowerCase().includes(searchQ) && !w.trade.toLowerCase().includes(searchQ) && !w.area.toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+  if(sortBy === 'rating') list.sort((a,b)=>b.rating-a.rating);
+  else if(sortBy === 'price') list.sort((a,b)=>parseInt(a.price)-parseInt(b.price));
+  else list.sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
+  return list;
+}
+
+function renderWorkers() {
+  renderFilterRow();
+  const list = getFiltered();
+  document.getElementById('workers-count').textContent = `${list.length} professional${list.length!==1?'s':''} found`;
+  if(!list.length){
+    document.getElementById('workers-list').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>No professionals found.<br>Try a different filter or location.</div>`;
+    return;
+  }
+  document.getElementById('workers-list').innerHTML = list.map(w=>`
+    <div class="worker-card" onclick="showDetail(${w.id})">
+      <div class="wc-top">
+        <div class="wc-avatar" style="background:${w.color}">${w.name.split(' ').map(x=>x[0]).join('')}</div>
+        <div class="wc-info">
+          <div class="wc-name">${w.name}</div>
+          <div class="wc-trade">${w.trade} · ${w.area}</div>
+          <span class="wc-badge ${w.available?'badge-available':'badge-busy'}">${w.available?'Available now':'Busy today'}</span>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="wc-rating">★ ${w.rating}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2px">${w.jobs} jobs</div>
+        </div>
+      </div>
+      <div class="wc-meta">
+        <div class="wc-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${w.dist}
+        </div>
+        <div class="wc-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          ${w.tags[0]}
+        </div>
+        <div class="wc-price">${w.price}</div>
+      </div>
+      <div class="wc-actions" onclick="event.stopPropagation()">
+        <button class="btn-call" onclick="callWorker('${w.phone}','${w.name}')">📞 Call</button>
+        <button class="btn-msg" onclick="msgWorker('${w.name}')">💬 Message</button>
+      </div>
+    </div>`).join('');
+}
+
+function showDetail(id) {
+  currentWorker = WORKERS.find(w=>w.id===id);
+  const w = currentWorker;
+  const stars = n => '★'.repeat(n)+'☆'.repeat(5-n);
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-hero">
+      <div class="dh-top">
+        <div class="dh-avatar" style="background:${w.color}">${w.name.split(' ').map(x=>x[0]).join('')}</div>
+        <div>
+          <div class="dh-name">${w.name}</div>
+          <div class="dh-trade">${w.trade} · ${w.area}, Coimbatore</div>
+          <span class="wc-badge ${w.available?'badge-available':'badge-busy'}" style="margin-top:6px;display:inline-block">${w.available?'Available now':'Busy today'}</span>
+        </div>
+      </div>
+      <div class="detail-stats">
+        <div class="stat-cell"><div class="stat-val">★ ${w.rating}</div><div class="stat-lbl">Rating</div></div>
+        <div class="stat-cell"><div class="stat-val">${w.jobs}+</div><div class="stat-lbl">Jobs done</div></div>
+        <div class="stat-cell"><div class="stat-val">${w.dist}</div><div class="stat-lbl">Distance</div></div>
+      </div>
+      <div class="detail-tags">${w.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <p style="font-size:13px;color:#6b7280;line-height:1.6">${w.bio}</p>
+    </div>
+    <div class="detail-section">
+      <div class="ds-title">Contact & Rate</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px">
+        <span style="color:#6b7280">Phone</span>
+        <span style="font-weight:500;color:var(--brand)">+91 ${w.phone}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-top:8px">
+        <span style="color:#6b7280">Rate</span>
+        <span style="font-weight:500">${w.price}</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-title">Customer Reviews</div>
+      ${w.reviews.map(r=>`
+        <div class="review-item">
+          <div class="rv-header">
+            <span class="rv-name">${r.name}</span>
+            <span class="stars">${stars(r.stars)}</span>
+          </div>
+          <div class="rv-text">${r.text}</div>
+        </div>`).join('')}
+    </div>
+    <div class="detail-ctas">
+      <button class="cta-call" onclick="callWorker('${w.phone}','${w.name}')">📞 Call ${w.name.split(' ')[0]}</button>
+      <button class="cta-whatsapp" onclick="waWorker('${w.phone}','${w.name}')">💬 WhatsApp</button>
+    </div>`;
+  document.getElementById('main-screen').classList.remove('active');
+  document.getElementById('detail-screen').classList.add('active');
+}
+
+function showMain() {
+  document.getElementById('detail-screen').classList.remove('active');
+  document.getElementById('main-screen').classList.add('active');
+}
+
+function callWorker(phone, name) {
+  alert(`Calling ${name}\n+91 ${phone}`);
+}
+function msgWorker(name) {
+  alert(`Opening chat with ${name}...`);
+}
+function waWorker(phone, name) {
+  alert(`Opening WhatsApp for ${name}\n+91 ${phone}`);
+}
+
+function openLocModal() {
+  document.getElementById('loc-modal').classList.add('open');
+}
+function closeLocModal() {
+  document.getElementById('loc-modal').classList.remove('open');
+}
+function setLocation(name, sub) {
+  document.getElementById('loc-display').textContent = name;
+  document.querySelectorAll('.loc-option').forEach(el=>el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  setTimeout(closeLocModal, 300);
+  renderWorkers();
+}
+</script>
